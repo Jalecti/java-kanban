@@ -8,12 +8,20 @@ public class Epic extends Task {
         this.subtaskIdList = subtaskIdList;
     }
 
+    public Epic(Epic other) {
+        this(other.id, other.name, other.description, other.status, other.subtaskIdList);
+    }
+
     public Epic(String name, String description) {
-        this(-1, name, description, null, new ArrayList<>());
+        this(-1, name, description, TaskStatus.NEW, new ArrayList<>());
     }
 
     public ArrayList<Integer> getSubtaskIdList() {
-        return subtaskIdList;
+        return new ArrayList<>(subtaskIdList);
+    }
+
+    public void clearSubtaskIdList() {
+        subtaskIdList.clear();
     }
 
     public void addSubtaskId(int id) {

@@ -6,6 +6,10 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    public Subtask(Subtask other) {
+        this(other.id, other.name, other.description, other.status, other.epicId);
+    }
+
     public Subtask(String name, String description, TaskStatus status, int epicId) {
         this(-1, name, description, status, epicId);
     }
