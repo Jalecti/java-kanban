@@ -32,9 +32,10 @@ public class TaskManager {
     }
 
     public void clearSubtaskMap() {
-        ArrayList<Integer> subtaskIdsToDelete = new ArrayList<>(subtaskMap.keySet());
-        for (Integer id : subtaskIdsToDelete) {
-            deleteSubtask(id);
+        subtaskMap.clear();
+        for (Epic epic : epicMap.values()) {
+            epic.clearSubtaskIdList();
+            updateEpicStatus(epic.getId());
         }
     }
 
@@ -45,7 +46,7 @@ public class TaskManager {
 
     public Task getTask(int id) {
         if (checkTask(id)) {
-            return new Task(taskMap.get(id));
+            return taskMap.get(id);
         } else {
             System.out.println("Указанная задача не найдена");
             return null;
@@ -54,7 +55,7 @@ public class TaskManager {
 
     public Subtask getSubtask(int id) {
         if (checkSubtask(id)) {
-            return new Subtask(subtaskMap.get(id));
+            return subtaskMap.get(id);
         } else {
             System.out.println("Указанная подзадача не найдена");
             return null;
@@ -63,7 +64,7 @@ public class TaskManager {
 
     public Epic getEpic(int id) {
         if (checkEpic(id)) {
-            return new Epic(epicMap.get(id));
+            return epicMap.get(id);
         } else {
             System.out.println("Указанный эпик не найден");
             return null;

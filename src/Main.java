@@ -39,20 +39,22 @@ public class Main {
 
         printAll(taskManager);
 
-        Subtask subtask123 = new Subtask("123", "Desc123", TaskStatus.NEW, 6);
-        taskManager.addSubtask(subtask123);
-        printAll(taskManager);
-        taskManager.deleteSubtask(8);
-        Epic epicToUpdate = taskManager.getEpic(6);
-        epicToUpdate.setDescription("asd");
-        epicToUpdate.setName("UPDATED EPIC2");
-        taskManager.updateEpic(epicToUpdate);
-        printAll(taskManager);
+        //Subtask subtask123 = new Subtask("123", "Desc123", TaskStatus.NEW, 6);
+        //taskManager.addSubtask(subtask123);
+        //printAll(taskManager);
+        //taskManager.deleteSubtask(8);
+        //Epic epicToUpdate = taskManager.getEpic(6);
+//        epicToUpdate.setDescription("asd");
+//        epicToUpdate.setName("UPDATED EPIC2");
+//        taskManager.updateEpic(epicToUpdate);
+//        printAll(taskManager);
 
-        taskManager.clearTaskMap();
-        taskManager.clearSubtaskMap();
-        taskManager.clearEpicMap();
-        printAll(taskManager);
+        //taskManager.clearTaskMap();
+        //taskManager.clearSubtaskMap();
+        //taskManager.clearEpicMap();
+        //taskManager.getTask(1).setName("1234");
+        //printAll(taskManager);
+
 
     }
 

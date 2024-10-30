@@ -14,10 +14,6 @@ public class Task {
         this.status = status;
     }
 
-    public Task(Task other) {
-        this(other.id, other.name, other.description, other.status);
-    }
-
     public Task(String name, String description, TaskStatus status) {
         this(-1, name, description, status);
     }
