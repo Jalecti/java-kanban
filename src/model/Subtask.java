@@ -1,9 +1,15 @@
+package model;
+
 public class Subtask extends Task {
     private final int epicId;
 
     public Subtask(int id, String name, String description, TaskStatus status, int epicId) {
         super(id, name, description, status);
-        this.epicId = epicId;
+        if (epicId != id) {
+            this.epicId = epicId;
+        } else {
+            this.epicId = -1;
+        }
     }
 
     public Subtask(String name, String description, TaskStatus status, int epicId) {
@@ -16,7 +22,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "Subtask{" +
+        return "model.Subtask{" +
                 "epicId=" + epicId +
                 ", id=" + id +
                 ", name='" + name + '\'' +
