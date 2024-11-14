@@ -9,12 +9,13 @@ import utils.Managers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final HashMap<Integer, Task> taskMap;
-    private final HashMap<Integer, Subtask> subtaskMap;
-    private final HashMap<Integer, Epic> epicMap;
+    private final Map<Integer, Task> taskMap;
+    private final Map<Integer, Subtask> subtaskMap;
+    private final Map<Integer, Epic> epicMap;
     private int taskCount;
     private final HistoryManager historyManager;
 
@@ -28,23 +29,23 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Task> getTaskList() {
+    public List<Task> getTaskList() {
         return new ArrayList<>(taskMap.values());
     }
 
     @Override
-    public ArrayList<Subtask> getSubtaskList() {
+    public List<Subtask> getSubtaskList() {
         return new ArrayList<>(subtaskMap.values());
     }
 
     @Override
-    public ArrayList<Epic> getEpicList() {
+    public List<Epic> getEpicList() {
         return new ArrayList<>(epicMap.values());
     }
 
     @Override
-    public ArrayList<Subtask> getSubtaskListOfEpic(int epicId) {
-        ArrayList<Subtask> subtaskListOfEpic = new ArrayList<>();
+    public List<Subtask> getSubtaskListOfEpic(int epicId) {
+        List<Subtask> subtaskListOfEpic = new ArrayList<>();
         if (checkEpic(epicId)) {
             Epic epic = epicMap.get(epicId);
             for (int subtaskId : epic.getSubtaskIdList()) {
@@ -208,7 +209,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (checkEpic(epicId)) {
             Epic epicToUpdate = epicMap.get(epicId);
             TaskStatus newStatus = TaskStatus.NEW;
-            ArrayList<Subtask> epicSubtaskList = getSubtaskListOfEpic(epicId);
+            List<Subtask> epicSubtaskList = getSubtaskListOfEpic(epicId);
             if (!epicSubtaskList.isEmpty()) {
                 newStatus = epicSubtaskList.getFirst().getStatus();
                 for (int i = 1; i < epicSubtaskList.size(); i++) {
