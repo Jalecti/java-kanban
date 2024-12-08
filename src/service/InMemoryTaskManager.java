@@ -60,11 +60,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTaskMap() {
+        for (int id : taskMap.keySet()) {
+            historyManager.remove(id);
+        }
         taskMap.clear();
     }
 
     @Override
     public void clearSubtaskMap() {
+        for (int id : subtaskMap.keySet()) {
+            historyManager.remove(id);
+        }
         subtaskMap.clear();
         for (Epic epic : epicMap.values()) {
             epic.clearSubtaskIdList();
@@ -74,7 +80,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearEpicMap() {
+        for (int id : epicMap.keySet()) {
+            historyManager.remove(id);
+        }
         epicMap.clear();
+        for (int id : subtaskMap.keySet()) {
+            historyManager.remove(id);
+        }
         subtaskMap.clear();
     }
 
@@ -176,6 +188,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTask(int id) {
         if (checkTask(id)) {
             taskMap.remove(id);
+            historyManager.remove(id);
         } else {
             System.out.println("Задача, помеченная для удаления, не найдена");
         }
@@ -188,6 +201,7 @@ public class InMemoryTaskManager implements TaskManager {
             subtaskEpic.removeSubtaskId(id);
             updateEpicStatus(subtaskEpic.getId());
             subtaskMap.remove(id);
+            historyManager.remove(id);
         } else {
             System.out.println("Подзадача, помеченная для удаления, не найдена");
         }
@@ -198,8 +212,10 @@ public class InMemoryTaskManager implements TaskManager {
         if (checkEpic(id)) {
             for (Integer subtaskId : epicMap.get(id).getSubtaskIdList()) {
                 subtaskMap.remove(subtaskId);
+                historyManager.remove(subtaskId);
             }
             epicMap.remove(id);
+            historyManager.remove(id);
         } else {
             System.out.println("Эпик, помеченный для удаления, не найден");
         }
