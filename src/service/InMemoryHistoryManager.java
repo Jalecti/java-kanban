@@ -99,7 +99,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         public List<T> getTasks() {
             List<T> taskList = new ArrayList<>();
             Node<T> currNode = head;
-            for (int i = 0; i < size; i++) {
+            while (currNode != null) {
                 taskList.add(currNode.data);
                 currNode = currNode.next;
             }
@@ -112,8 +112,10 @@ public class InMemoryHistoryManager implements HistoryManager {
                 tail = null;
             } else if (head.data.equals(node.data)) {
                 head = head.next;
+                head.prev = null;
             } else if (tail.data.equals(node.data)) {
                 tail = tail.prev;
+                tail.next = null;
             } else {
                 node.prev.next = node.next;
                 node.next.prev = node.prev;
