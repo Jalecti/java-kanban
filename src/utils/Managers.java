@@ -6,7 +6,8 @@ import service.HistoryManager;
 import service.InMemoryHistoryManager;
 
 public class Managers {
-    private Managers() {}
+    private Managers() {
+    }
 
     public static TaskManager getDefault() {
         return new InMemoryTaskManager();

@@ -181,7 +181,7 @@ class InMemoryTaskManagerTest {
         Subtask subtask = new Subtask(2, "name", "descr", TaskStatus.NEW, 1);
         taskManager.addEpic(epic);
         taskManager.addSubtask(subtask);
-        Epic epicToUpdate = new Epic(1,"new_name", "new_descr", TaskStatus.NEW, new ArrayList<>());
+        Epic epicToUpdate = new Epic(1, "new_name", "new_descr", TaskStatus.NEW, new ArrayList<>());
         taskManager.updateEpic(epicToUpdate);
         Epic updatedEpicFromManager = taskManager.getEpic(1);
         assertEquals(epicToUpdate.getName(), updatedEpicFromManager.getName());
@@ -201,6 +201,74 @@ class InMemoryTaskManagerTest {
         Subtask subtask2 = new Subtask(3, "name", "descr", TaskStatus.NEW, 1);
         taskManager.addSubtask(subtask2);
         assertEquals(TaskStatus.IN_PROGRESS, taskManager.getEpic(1).getStatus());
+    }
+
+    @Test
+    public void shouldEmptyHistoryWhenClearTaskMap() {
+        for (int i = 1; i <= 10; i++) {
+            taskManager.addTask(new Task("name" + i, "desc" + i, TaskStatus.NEW));
+        }
+        assertEquals(10, taskManager.getTaskList().size());
+        for (int i = 1; i <= 10; i++) {
+            taskManager.getTask(i);
+        }
+        assertEquals(10, taskManager.getHistory().size());
+
+        taskManager.clearTaskMap();
+        assertEquals(0, taskManager.getTaskList().size());
+        assertEquals(0, taskManager.getHistory().size());
+    }
+
+    @Test
+    public void shouldEmptyHistoryWhenClearEpicMap() {
+        for (int i = 1; i <= 10; i++) {
+            taskManager.addEpic(new Epic("name" + i, "desc" + i));
+        }
+        assertEquals(10, taskManager.getEpicList().size());
+        for (int i = 1; i <= 10; i++) {
+            taskManager.getEpic(i);
+        }
+        assertEquals(10, taskManager.getHistory().size());
+
+        taskManager.clearEpicMap();
+        assertEquals(0, taskManager.getEpicList().size());
+        assertEquals(0, taskManager.getHistory().size());
+    }
+
+    @Test
+    public void shouldEmptyHistoryWhenClearSubtaskMap() {
+        taskManager.addEpic(new Epic("epic", "desc"));
+        for (int i = 1; i <= 10; i++) {
+            taskManager.addSubtask(new Subtask("name" + i, "desc" + i, TaskStatus.NEW, 1));
+        }
+        assertEquals(1, taskManager.getEpicList().size());
+        assertEquals(10, taskManager.getSubtaskList().size());
+        for (int i = 2; i <= 11; i++) {
+            taskManager.getSubtask(i);
+        }
+        assertEquals(10, taskManager.getHistory().size());
+
+        taskManager.clearSubtaskMap();
+        assertEquals(0, taskManager.getSubtaskList().size());
+        assertEquals(0, taskManager.getHistory().size());
+    }
+
+    @Test
+    public void shouldEmptyHistoryWhenGetSubtasksAndClearEpicMap() {
+        taskManager.addEpic(new Epic("epic", "desc"));
+        for (int i = 1; i <= 10; i++) {
+            taskManager.addSubtask(new Subtask("name" + i, "desc" + i, TaskStatus.NEW, 1));
+        }
+        assertEquals(1, taskManager.getEpicList().size());
+        assertEquals(10, taskManager.getSubtaskList().size());
+        for (int i = 2; i <= 11; i++) {
+            taskManager.getSubtask(i);
+        }
+        assertEquals(10, taskManager.getHistory().size());
+
+        taskManager.clearEpicMap();
+        assertEquals(0, taskManager.getSubtaskList().size());
+        assertEquals(0, taskManager.getHistory().size());
     }
 
 }

@@ -1,28 +1,126 @@
 package service;
 
 import model.Task;
+import model.Node;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private final List<Task> getterCallHistory;
+    private final Map<Integer, Node<Task>> getterCallHistory;
+    private final HandMadeLinkedList<Task> getterCallHistoryList;
 
     public InMemoryHistoryManager() {
-        getterCallHistory = new ArrayList<>(10);
+        getterCallHistory = new HashMap<>();
+        getterCallHistoryList = new HandMadeLinkedList<>();
     }
 
     @Override
     public List<Task> getHistory() {
-        return new ArrayList<>(getterCallHistory);
+        return getterCallHistoryList.getTasks();
     }
 
     @Override
     public void addToHistory(Task task) {
-        if (getterCallHistory.size() == 10) {
-            getterCallHistory.removeFirst();
+        int taskId = task.getId();
+        if (getterCallHistory.containsKey(taskId)) {
+            if (getterCallHistoryList.getLast().equals(task)) return;
+            Node<Task> targetNode = getterCallHistory.get(taskId);
+            removeNode(targetNode);
         }
-        getterCallHistory.add(task);
+        getterCallHistory.put(taskId, getterCallHistoryList.linkLast(task));
+    }
+
+    @Override
+    public void remove(int id) {
+        if (getterCallHistory.containsKey(id)) {
+            removeNode(getterCallHistory.get(id));
+            getterCallHistory.remove(id);
+        }
+    }
+
+    private void removeNode(Node<Task> node) {
+        getterCallHistoryList.removeListNode(node);
+    }
+
+    static class HandMadeLinkedList<T> {
+
+        //Указатель на первый элемент списка. Он же first
+        private Node<T> head;
+
+        //Указатель на последний элемент списка. Он же last
+        private Node<T> tail;
+
+        private int size = 0;
+
+        public Node<T> linkFirst(T element) {
+            final Node<T> oldHead = head;
+            final Node<T> newNode = new Node<>(null, element, oldHead);
+            head = newNode;
+            if (oldHead == null)
+                tail = newNode;
+            else
+                oldHead.prev = newNode;
+            size++;
+            return newNode;
+        }
+
+        public T getFirst() {
+            final Node<T> curHead = head;
+            if (curHead == null)
+                throw new NoSuchElementException();
+            return head.data;
+        }
+
+        public Node<T> linkLast(T element) {
+            final Node<T> oldTail = tail;
+            final Node<T> newNode = new Node<>(oldTail, element, null);
+            tail = newNode;
+            if (oldTail == null) {
+                head = newNode;
+            } else {
+                oldTail.next = newNode;
+            }
+            size++;
+            return newNode;
+        }
+
+        public T getLast() {
+            final Node<T> curTail = tail;
+            if (curTail == null)
+                throw new NoSuchElementException();
+            return tail.data;
+        }
+
+        public int size() {
+            return this.size;
+        }
+
+        public List<T> getTasks() {
+            List<T> taskList = new ArrayList<>();
+            Node<T> currNode = head;
+            while (currNode != null) {
+                taskList.add(currNode.data);
+                currNode = currNode.next;
+            }
+            return taskList;
+        }
+
+        public void removeListNode(Node<T> node) {
+            if (size == 1 && head.data.equals(node.data) && tail.data.equals(node.data)) {
+                head = null;
+                tail = null;
+            } else if (head.data.equals(node.data)) {
+                head = head.next;
+                head.prev = null;
+            } else if (tail.data.equals(node.data)) {
+                tail = tail.prev;
+                tail.next = null;
+            } else {
+                node.prev.next = node.next;
+                node.next.prev = node.prev;
+            }
+            --size;
+        }
     }
 }
