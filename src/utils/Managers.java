@@ -1,9 +1,9 @@
 package utils;
 
-import service.TaskManager;
-import service.InMemoryTaskManager;
-import service.HistoryManager;
-import service.InMemoryHistoryManager;
+import service.*;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 public class Managers {
     private Managers() {
@@ -15,5 +15,9 @@ public class Managers {
 
     public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();
+    }
+
+    public static FileBackedTaskManager getFileBacked(File saveFile) throws FileNotFoundException {
+        return new FileBackedTaskManager(saveFile);
     }
 }
