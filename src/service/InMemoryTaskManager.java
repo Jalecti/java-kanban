@@ -250,5 +250,27 @@ public class InMemoryTaskManager implements TaskManager {
     private boolean checkEpic(int id) {
         return epicMap.containsKey(id);
     }
+
+    protected void addTaskFromFile(Task task) {
+        if (task instanceof Epic) {
+            epicMap.put(task.getId(), (Epic) task);
+        } else if (task instanceof Subtask) {
+            Subtask subtask = (Subtask) task;
+            if (checkEpic(subtask.getEpicId())) {
+                subtaskMap.put(subtask.getId(), subtask);
+                epicMap.get(subtask.getEpicId()).addSubtaskId(subtask.getId());
+                updateEpicStatus(subtask.getEpicId());
+            } else {
+                System.out.println("Указанный эпик не найден");
+            }
+        } else {
+            taskMap.put(task.getId(), task);
+        }
+    }
+
+    protected void setTaskCount(int taskCount) {
+        this.taskCount = taskCount;
+    }
+
 }
 
