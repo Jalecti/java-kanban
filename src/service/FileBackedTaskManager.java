@@ -19,7 +19,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.saveFile = saveFile;
     }
 
-    public static String toString(Task task) {
+    private static String toString(Task task) {
         String epicId = "";
         TaskTypes taskType = TaskTypes.TASK;
         if (task instanceof Subtask) {
@@ -32,7 +32,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 task.getId(), taskType, task.getName(), task.getStatus(), task.getDescription(), epicId);
     }
 
-    public static Task fromString(String value) {
+    private static Task fromString(String value) {
         //value = "id,type,name,status,description,epicId" - CSV
         String[] taskInfo = value.split(",");
         int taskId = Integer.parseInt(taskInfo[0]);
@@ -63,6 +63,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             allTasks.addAll(getEpicList());
             allTasks.addAll(getSubtaskList());
 
+            String header = "id,type,name,status,description,epicId";
+            bufferedWriter.write(header);
+            bufferedWriter.newLine();
             for (Task task : allTasks) {
                 String taskInCSV = toString(task);
                 bufferedWriter.write(taskInCSV);
@@ -78,26 +81,27 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         List<Task> allTasksFromSave = new ArrayList<>();
         try (FileReader fileReader = new FileReader(file, StandardCharsets.UTF_8);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+            boolean isFirst = true;
             while (bufferedReader.ready()) {
                 String line = bufferedReader.readLine();
+                if (isFirst) {
+                    isFirst = false;
+                    continue;
+                }
                 allTasksFromSave.add(fromString(line));
             }
         } catch (IOException e) {
-            System.out.println("Ошибка чтения из файла: " + e.getMessage());
+            throw new ManagerSaveException("Ошибка загрузки из файла");
         }
 
         FileBackedTaskManager newManager = Managers.getFileBacked(file);
 
         for (Task task : allTasksFromSave) {
-            if (task instanceof Epic) {
-                newManager.addEpic((Epic) task);
-            } else if (task instanceof Subtask) {
-                newManager.addSubtask((Subtask) task);
-            } else {
-                newManager.addTask(task);
-            }
+            newManager.addTaskFromFile(task);
         }
-
+        if (!allTasksFromSave.isEmpty()) {
+            newManager.setTaskCount(allTasksFromSave.getLast().getId());
+        }
         return newManager;
     }
 
