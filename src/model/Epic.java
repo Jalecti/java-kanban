@@ -1,13 +1,26 @@
 package model;
 
+import utils.Constant;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Epic extends Task {
     private final ArrayList<Integer> subtaskIdList;
 
-    public Epic(int id, String name, String description, TaskStatus status, ArrayList<Integer> subtaskIdList) {
-        super(id, name, description, status);
+    private LocalDateTime endTime;
+
+    public Epic(int id, String name, String description, TaskStatus status, ArrayList<Integer> subtaskIdList,
+                Duration duration, LocalDateTime startTime) {
+        super(id, name, description, status, duration, startTime);
         this.subtaskIdList = subtaskIdList;
+        endTime = Constant.UNIX_EPOCH_START;
+    }
+
+    public Epic(int id, String name, String description, TaskStatus status, ArrayList<Integer> subtaskIdList) {
+        this(id, name, description, status, subtaskIdList, Duration.ZERO, Constant.UNIX_EPOCH_START);
     }
 
     public Epic(String name, String description) {
@@ -32,14 +45,27 @@ public class Epic extends Task {
         subtaskIdList.remove(id);
     }
 
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+
     @Override
     public String toString() {
-        return "model.Epic{" +
+        return "Epic{" +
                 "subtaskIdList=" + subtaskIdList +
                 ", id=" + id +
                 ", name='" + name + '\'' +
-                ", description.length()='" + description.length() + '\'' +
+                ", description='" + description + '\'' +
                 ", status=" + status +
+                ", duration=" + duration.toMinutes() + "min" +
+                ", startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) +
+                ", endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) +
                 '}';
     }
 }

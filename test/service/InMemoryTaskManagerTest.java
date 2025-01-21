@@ -1,13 +1,17 @@
 package service;
 
+import exceptions.TaskTimeOverlapException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import utils.Constant;
 import utils.Managers;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -271,4 +275,99 @@ class InMemoryTaskManagerTest {
         assertEquals(0, taskManager.getHistory().size());
     }
 
+    @Test
+    public void shouldCalculateEpicStatusCorrectly() {
+        taskManager.addEpic(new Epic("n1", "d1"));
+        taskManager.addSubtask(new Subtask("n2", "d2", TaskStatus.NEW, 1));
+        taskManager.addSubtask(new Subtask("n3", "d3", TaskStatus.NEW, 1));
+        assertEquals(TaskStatus.NEW, taskManager.getEpic(1).getStatus());
+
+        taskManager.updateSubtask(new Subtask(2, "n2", "d2", TaskStatus.DONE, 1));
+        taskManager.updateSubtask(new Subtask(3, "n3", "d3", TaskStatus.DONE, 1));
+        assertEquals(TaskStatus.DONE, taskManager.getEpic(1).getStatus());
+
+        taskManager.updateSubtask(new Subtask(2, "n2", "d2", TaskStatus.NEW, 1));
+        taskManager.updateSubtask(new Subtask(3, "n3", "d3", TaskStatus.DONE, 1));
+        assertEquals(TaskStatus.IN_PROGRESS, taskManager.getEpic(1).getStatus());
+
+        taskManager.updateSubtask(new Subtask(2, "n2", "d2", TaskStatus.IN_PROGRESS, 1));
+        taskManager.updateSubtask(new Subtask(3, "n3", "d3", TaskStatus.IN_PROGRESS, 1));
+        assertEquals(TaskStatus.IN_PROGRESS, taskManager.getEpic(1).getStatus());
+    }
+
+    @Test
+    public void shouldCalculateEpicTimeCorrectly() {
+        LocalDateTime now = LocalDateTime.now();
+        taskManager.addEpic(new Epic("n1", "d1"));
+        assertEquals(Constant.UNIX_EPOCH_START, taskManager.getEpic(1).getStartTime());
+        assertEquals(Duration.ZERO, taskManager.getEpic(1).getDuration());
+        assertEquals(Constant.UNIX_EPOCH_START, taskManager.getEpic(1).getEndTime());
+
+        taskManager.addSubtask(new Subtask(2, "n2", "d2", TaskStatus.NEW, 1, Duration.ofMinutes(5), now));
+        assertEquals(taskManager.getSubtask(2).getStartTime(), taskManager.getEpic(1).getStartTime());
+        assertEquals(taskManager.getSubtask(2).getDuration(), taskManager.getEpic(1).getDuration());
+        assertEquals(taskManager.getSubtask(2).getEndTime(), taskManager.getEpic(1).getEndTime());
+
+        taskManager.updateSubtask(new Subtask(2, "n2", "d2", TaskStatus.NEW, 1, Duration.ofMinutes(10), now.plusMinutes(10)));
+        assertEquals(taskManager.getSubtask(2).getStartTime(), taskManager.getEpic(1).getStartTime());
+        assertEquals(taskManager.getSubtask(2).getDuration(), taskManager.getEpic(1).getDuration());
+        assertEquals(taskManager.getSubtask(2).getEndTime(), taskManager.getEpic(1).getEndTime());
+
+        taskManager.addSubtask(new Subtask(3, "n3", "d3", TaskStatus.NEW, 1, Duration.ofMinutes(20), now.plusMinutes(21)));
+        assertEquals(taskManager.getSubtask(2).getStartTime(), taskManager.getEpic(1).getStartTime());
+        assertEquals(Duration.between(taskManager.getSubtask(2).getStartTime(), taskManager.getSubtask(3).getEndTime()), taskManager.getEpic(1).getDuration());
+        assertEquals(taskManager.getSubtask(3).getEndTime(), taskManager.getEpic(1).getEndTime());
+
+        taskManager.deleteSubtask(2);
+        taskManager.addSubtask(new Subtask(0, "n4", "d4", TaskStatus.NEW, 1));
+        assertEquals(taskManager.getSubtask(3).getStartTime(), taskManager.getEpic(1).getStartTime());
+        assertEquals(taskManager.getSubtask(3).getDuration(), taskManager.getEpic(1).getDuration());
+        assertEquals(taskManager.getSubtask(3).getEndTime(), taskManager.getEpic(1).getEndTime());
+
+    }
+
+    @Test
+    public void shouldCalculateTaskOverlapTimeCorrectly() {
+        LocalDateTime now = LocalDateTime.now();
+        taskManager.addTask(new Task(1, "n1", "d1", TaskStatus.NEW, Duration.ofMinutes(5), now));
+        assertThrows(TaskTimeOverlapException.class, () -> {
+            taskManager.addTask(new Task(2, "n2", "d2", TaskStatus.NEW, Duration.ofMinutes(5), now.plusMinutes(5)));
+        });
+        assertDoesNotThrow(() -> {
+            taskManager.addTask(new Task(2, "n2", "d2", TaskStatus.NEW, Duration.ofMinutes(5), now.plusMinutes(6)));
+        });
+
+        taskManager.addEpic(new Epic("n3", "d3"));
+        taskManager.addSubtask(new Subtask(4, "n4", "d4", TaskStatus.NEW, 3, Duration.ofMinutes(20), now.plusMinutes(20)));
+        assertThrows(TaskTimeOverlapException.class, () -> {
+            taskManager.addTask(new Task(5, "n5", "d5", TaskStatus.NEW, Duration.ofMinutes(5), now.plusMinutes(21)));
+        });
+
+        taskManager.deleteEpic(3);
+        assertDoesNotThrow(() -> {
+            taskManager.addTask(new Task(5, "n5", "d5", TaskStatus.NEW, Duration.ofMinutes(5), now.plusMinutes(21)));
+        });
+    }
+
+    @Test
+    public void shouldReturnCorrectPrioritizedTaskList() {
+        LocalDateTime now = LocalDateTime.now();
+        assertEquals(0, taskManager.getPrioritizedTasks().size());
+
+        taskManager.addTask(new Task(1, "n1", "d1", TaskStatus.NEW, Duration.ofMinutes(5), now.plusMinutes(60)));
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+
+        taskManager.addTask(new Task(2, "n2", "d2", TaskStatus.NEW, Duration.ofMinutes(5), now.plusMinutes(50)));
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+        assertEquals(taskManager.getTask(2), taskManager.getPrioritizedTasks().getFirst());
+
+        taskManager.addEpic(new Epic("n3", "d3"));
+        taskManager.addSubtask(new Subtask(4, "n4", "d4", TaskStatus.NEW, 3, Duration.ofMinutes(5), now.plusMinutes(40)));
+        assertEquals(4, taskManager.getPrioritizedTasks().size());
+        assertEquals(taskManager.getEpic(3), taskManager.getPrioritizedTasks().getFirst());
+        assertEquals(taskManager.getTask(1), taskManager.getPrioritizedTasks().getLast());
+
+        taskManager.addTask(new Task(0, "n0", "d0", TaskStatus.NEW));
+        assertEquals(4, taskManager.getPrioritizedTasks().size());
+    }
 }

@@ -111,6 +111,7 @@ class InMemoryHistoryManagerTest {
         historyManager.addToHistory(task1);
         historyManager.addToHistory(task2);
         historyManager.addToHistory(task3);
+        historyManager.addToHistory(task3);
         assertEquals(3, historyManager.getHistory().size());
     }
 
@@ -168,4 +169,5 @@ class InMemoryHistoryManagerTest {
         taskManager.deleteEpic(1);
         assertEquals(0, taskManager.getHistory().size());
     }
+
 }
