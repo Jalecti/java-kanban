@@ -1,10 +1,7 @@
 package model;
 
-import utils.Constant;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class Subtask extends Task {
     private final int epicId;
@@ -19,7 +16,7 @@ public class Subtask extends Task {
     }
 
     public Subtask(int id, String name, String description, TaskStatus status, int epicId) {
-        this(id, name, description, status, epicId, Duration.ZERO, Constant.UNIX_EPOCH_START);
+        this(id, name, description, status, epicId, null, null);
     }
 
     public Subtask(String name, String description, TaskStatus status, int epicId) {
@@ -38,9 +35,9 @@ public class Subtask extends Task {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
-                ", duration=" + duration.toMinutes() + "min" +
-                ", startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) +
-                ", endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                ", endTime=" + getEndTime() +
                 '}';
     }
 }

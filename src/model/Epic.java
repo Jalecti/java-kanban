@@ -1,10 +1,7 @@
 package model;
 
-import utils.Constant;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Epic extends Task {
@@ -16,11 +13,11 @@ public class Epic extends Task {
                 Duration duration, LocalDateTime startTime) {
         super(id, name, description, status, duration, startTime);
         this.subtaskIdList = subtaskIdList;
-        endTime = Constant.UNIX_EPOCH_START;
+        endTime = null;
     }
 
     public Epic(int id, String name, String description, TaskStatus status, ArrayList<Integer> subtaskIdList) {
-        this(id, name, description, status, subtaskIdList, Duration.ZERO, Constant.UNIX_EPOCH_START);
+        this(id, name, description, status, subtaskIdList, null, null);
     }
 
     public Epic(String name, String description) {
@@ -63,9 +60,9 @@ public class Epic extends Task {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
-                ", duration=" + duration.toMinutes() + "min" +
-                ", startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) +
-                ", endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                ", endTime=" + getEndTime() +
                 '}';
     }
 }

@@ -31,7 +31,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             taskType = TaskTypes.EPIC;
         }
         return String.format("%d,%s,%s,%s,%s,%s,%s,%s",
-                task.getId(), taskType, task.getName(), task.getStatus(), task.getDescription(), epicId, task.getDuration().toMinutes(), task.getStartTime());
+                task.getId(), taskType, task.getName(), task.getStatus(), task.getDescription(), epicId,
+                task.getDuration(), task.getStartTime());
     }
 
     private static Task fromString(String value) {
@@ -41,8 +42,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String taskName = taskInfo[2];
         TaskStatus taskStatus = TaskStatus.valueOf(taskInfo[3]);
         String taskDescription = taskInfo[4];
-        Duration taskDuration = Duration.ofMinutes(Integer.parseInt(taskInfo[6]));
-        LocalDateTime taskStartTime = LocalDateTime.parse(taskInfo[7]);
+        Duration taskDuration = taskInfo[6].equals("null") ? null : Duration.parse(taskInfo[6]);
+        LocalDateTime taskStartTime = taskInfo[7].equals("null") ? null : LocalDateTime.parse(taskInfo[7]);
 
         if (taskInfo[1].equals(TaskTypes.SUBTASK.toString())) {
             return new Subtask(taskId, taskName, taskDescription, taskStatus, Integer.parseInt(taskInfo[5]), taskDuration, taskStartTime);
@@ -178,7 +179,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
-    static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException {
         File saveFile = new File("saves\\save.csv");
         TaskManager manager = Managers.getFileBacked(saveFile);
         LocalDateTime now = LocalDateTime.now();

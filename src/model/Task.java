@@ -1,10 +1,7 @@
 package model;
 
-import utils.Constant;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task {
@@ -27,7 +24,7 @@ public class Task {
     }
 
     public Task(int id, String name, String description, TaskStatus status) {
-        this(id, name, description, status, Duration.ZERO, Constant.UNIX_EPOCH_START);
+        this(id, name, description, status, null, null);
     }
 
     public Task(String name, String description, TaskStatus status) {
@@ -67,7 +64,10 @@ public class Task {
     }
 
     public LocalDateTime getEndTime() {
-        return startTime.plus(duration);
+        if (startTime != null && duration != null) {
+            return startTime.plus(duration);
+        }
+        return null;
     }
 
     public void setId(int id) {
@@ -106,9 +106,9 @@ public class Task {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
-                ", duration=" + duration.toMinutes() + "min" +
-                ", startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) +
-                ", endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                ", endTime=" + getEndTime() +
                 '}';
     }
 }

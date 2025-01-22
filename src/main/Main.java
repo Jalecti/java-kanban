@@ -83,7 +83,7 @@ public class Main {
         manager.addTask(task2);
         Epic epic1 = new Epic("e1", "d3");
         manager.addEpic(epic1);
-        Subtask subtask1 = new Subtask(4, "st1", "d1", TaskStatus.NEW, 3, Duration.ofMinutes(5), now.plusMinutes(20));
+        Subtask subtask1 = new Subtask(4, "st1", "d1", TaskStatus.NEW, 3, Duration.ofMinutes(7), now.plusMinutes(20));
         manager.addSubtask(subtask1);
         //id = 5
         Subtask subtask2 = new Subtask(5, "st2", "d2", TaskStatus.IN_PROGRESS, 3, Duration.ofMinutes(5), now.plusMinutes(10));
@@ -95,6 +95,8 @@ public class Main {
 
         System.out.println("Приоритетный порядок задач:");
         manager.getPrioritizedTasks().stream().forEach(System.out::println);
+        System.out.println("Длительность эпика:");
+        System.out.println(manager.getEpic(3).getDuration());
     }
 
     static void printHistory(TaskManager manager) {

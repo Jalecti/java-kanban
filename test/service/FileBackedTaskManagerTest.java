@@ -53,10 +53,10 @@ class FileBackedTaskManagerTest {
 
         String tasksString = String.format("%s%n%s%n%s%n%s%n%s%n",
                 "id,type,name,status,description,epicId,duration,startTime",
-                "1,TASK,Task1,NEW,Description task1,," + task1.getDuration().toMinutes() + "," + task1.getStartTime(),
-                "2,EPIC,Epic1,DONE,Description epic1,," + epic1.getDuration().toMinutes() + "," + epic1.getStartTime(),
-                "3,SUBTASK,Sub Task1,DONE,Description sub task1,2," + subtask1.getDuration().toMinutes() + "," + subtask1.getStartTime(),
-                "4,SUBTASK,Sub Task2,DONE,Description sub task2,2," + subtask2.getDuration().toMinutes() + "," + subtask2.getStartTime());
+                "1,TASK,Task1,NEW,Description task1,," + task1.getDuration() + "," + task1.getStartTime(),
+                "2,EPIC,Epic1,DONE,Description epic1,," + epic1.getDuration() + "," + epic1.getStartTime(),
+                "3,SUBTASK,Sub Task1,DONE,Description sub task1,2," + subtask1.getDuration() + "," + subtask1.getStartTime(),
+                "4,SUBTASK,Sub Task2,DONE,Description sub task2,2," + subtask2.getDuration() + "," + subtask2.getStartTime());
         fileString = Files.readString(tempFile.toPath(), StandardCharsets.UTF_8);
         assertEquals(tasksString, fileString);
     }
@@ -79,10 +79,10 @@ class FileBackedTaskManagerTest {
         Subtask subtask2 = new Subtask(4, "Sub Task2", "Description sub task2", TaskStatus.DONE, 2);
         String tasksString = String.format("%s%n%s%n%s%n%s%n%s%n",
                 "id,type,name,status,description,epicId,duration,startTime",
-                "1,TASK,Task1,NEW,Description task1,," + task1.getDuration().toMinutes() + "," + task1.getStartTime(),
-                "2,EPIC,Epic1,DONE,Description epic1,," + epic1.getDuration().toMinutes() + "," + epic1.getStartTime(),
-                "3,SUBTASK,Sub Task1,DONE,Description sub task1,2," + subtask1.getDuration().toMinutes() + "," + subtask1.getStartTime(),
-                "4,SUBTASK,Sub Task2,DONE,Description sub task2,2," + subtask2.getDuration().toMinutes() + "," + subtask2.getStartTime());
+                "1,TASK,Task1,NEW,Description task1,," + task1.getDuration() + "," + task1.getStartTime(),
+                "2,EPIC,Epic1,DONE,Description epic1,," + epic1.getDuration() + "," + epic1.getStartTime(),
+                "3,SUBTASK,Sub Task1,DONE,Description sub task1,2," + subtask1.getDuration() + "," + subtask1.getStartTime(),
+                "4,SUBTASK,Sub Task2,DONE,Description sub task2,2," + subtask2.getDuration() + "," + subtask2.getStartTime());
         try (FileWriter fileWriter = new FileWriter(tempFile, StandardCharsets.UTF_8);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             bufferedWriter.write(tasksString);

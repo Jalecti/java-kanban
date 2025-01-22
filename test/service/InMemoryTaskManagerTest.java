@@ -7,7 +7,6 @@ import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import utils.Constant;
 import utils.Managers;
 
 import java.time.Duration;
@@ -299,9 +298,9 @@ class InMemoryTaskManagerTest {
     public void shouldCalculateEpicTimeCorrectly() {
         LocalDateTime now = LocalDateTime.now();
         taskManager.addEpic(new Epic("n1", "d1"));
-        assertEquals(Constant.UNIX_EPOCH_START, taskManager.getEpic(1).getStartTime());
-        assertEquals(Duration.ZERO, taskManager.getEpic(1).getDuration());
-        assertEquals(Constant.UNIX_EPOCH_START, taskManager.getEpic(1).getEndTime());
+        assertNull(taskManager.getEpic(1).getStartTime());
+        assertNull(taskManager.getEpic(1).getDuration());
+        assertNull(taskManager.getEpic(1).getEndTime());
 
         taskManager.addSubtask(new Subtask(2, "n2", "d2", TaskStatus.NEW, 1, Duration.ofMinutes(5), now));
         assertEquals(taskManager.getSubtask(2).getStartTime(), taskManager.getEpic(1).getStartTime());
@@ -315,7 +314,6 @@ class InMemoryTaskManagerTest {
 
         taskManager.addSubtask(new Subtask(3, "n3", "d3", TaskStatus.NEW, 1, Duration.ofMinutes(20), now.plusMinutes(21)));
         assertEquals(taskManager.getSubtask(2).getStartTime(), taskManager.getEpic(1).getStartTime());
-        assertEquals(Duration.between(taskManager.getSubtask(2).getStartTime(), taskManager.getSubtask(3).getEndTime()), taskManager.getEpic(1).getDuration());
         assertEquals(taskManager.getSubtask(3).getEndTime(), taskManager.getEpic(1).getEndTime());
 
         taskManager.deleteSubtask(2);
@@ -350,7 +348,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void shouldReturnCorrectPrioritizedTaskList() {
+    public void shouldReturnCorrectSizeOfPrioritizedTaskList() {
         LocalDateTime now = LocalDateTime.now();
         assertEquals(0, taskManager.getPrioritizedTasks().size());
 
@@ -363,11 +361,79 @@ class InMemoryTaskManagerTest {
 
         taskManager.addEpic(new Epic("n3", "d3"));
         taskManager.addSubtask(new Subtask(4, "n4", "d4", TaskStatus.NEW, 3, Duration.ofMinutes(5), now.plusMinutes(40)));
-        assertEquals(4, taskManager.getPrioritizedTasks().size());
-        assertEquals(taskManager.getEpic(3), taskManager.getPrioritizedTasks().getFirst());
+        assertEquals(3, taskManager.getPrioritizedTasks().size());
+        assertEquals(taskManager.getSubtask(4), taskManager.getPrioritizedTasks().getFirst());
         assertEquals(taskManager.getTask(1), taskManager.getPrioritizedTasks().getLast());
 
         taskManager.addTask(new Task(0, "n0", "d0", TaskStatus.NEW));
-        assertEquals(4, taskManager.getPrioritizedTasks().size());
+        assertEquals(3, taskManager.getPrioritizedTasks().size());
+
+        taskManager.deleteEpic(3);
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+
+        taskManager.clearTaskMap();
+        assertEquals(0, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    public void shouldBeNullEpicTimeWhenAllSubtasksTimeIsNull() {
+        taskManager.addEpic(new Epic("n1", "d1"));
+        assertNull(taskManager.getEpic(1).getStartTime());
+        assertNull(taskManager.getEpic(1).getEndTime());
+        assertNull(taskManager.getEpic(1).getDuration());
+
+        taskManager.addSubtask(new Subtask("n2", "d2", TaskStatus.NEW, 1));
+        taskManager.addSubtask(new Subtask("n3", "d3", TaskStatus.NEW, 1));
+        assertNull(taskManager.getEpic(1).getStartTime());
+        assertNull(taskManager.getEpic(1).getEndTime());
+        assertNull(taskManager.getEpic(1).getDuration());
+
+        taskManager.addSubtask(new Subtask(4, "n4", "d4", TaskStatus.NEW, 1, Duration.ofMinutes(5), LocalDateTime.now()));
+        assertEquals(taskManager.getSubtask(4).getStartTime(), taskManager.getEpic(1).getStartTime());
+        assertEquals(taskManager.getSubtask(4).getEndTime(), taskManager.getEpic(1).getEndTime());
+        assertEquals(taskManager.getSubtask(4).getDuration(), taskManager.getEpic(1).getDuration());
+
+        taskManager.updateSubtask(new Subtask(4, "n4", "d4", TaskStatus.NEW, 1, null, null));
+        assertNull(taskManager.getEpic(1).getStartTime());
+        assertNull(taskManager.getEpic(1).getEndTime());
+        assertNull(taskManager.getEpic(1).getDuration());
+    }
+
+    @Test
+    public void shouldUpdateTaskInPrioritizedTaskListWhenUpdateTask() {
+        LocalDateTime now = LocalDateTime.now();
+        Task t1 = new Task(1, "t1", "d1", TaskStatus.NEW);
+        Task t2 = new Task(2, "t2", "d2", TaskStatus.DONE);
+
+        taskManager.addTask(t1);
+        taskManager.addTask(t2);
+        assertEquals(List.of(), taskManager.getPrioritizedTasks());
+
+        Task t1New = new Task(1, "t1New", "d1New", TaskStatus.IN_PROGRESS, Duration.ofMinutes(5), now);
+        Task t2New = new Task(2, "t2New", "d2New", TaskStatus.NEW, Duration.ofMinutes(5), now.plusMinutes(6));
+        taskManager.updateTask(t1New);
+        taskManager.updateTask(t2New);
+
+        assertEquals(List.of(t1New, t2New), taskManager.getPrioritizedTasks());
+    }
+
+    @Test
+    public void shouldUpdateSubtaskInPrioritizedTaskListWhenUpdateSubtask() {
+        LocalDateTime now = LocalDateTime.now();
+        Epic epic = new Epic("e1", "ed1");
+        Subtask st1 = new Subtask(2, "st1", "d1", TaskStatus.NEW, 1);
+        Subtask st2 = new Subtask(3, "st2", "d2", TaskStatus.DONE, 1);
+
+        taskManager.addEpic(epic);
+        taskManager.addSubtask(st1);
+        taskManager.addSubtask(st2);
+        assertEquals(List.of(), taskManager.getPrioritizedTasks());
+
+        Subtask st1New = new Subtask(2, "t1New", "d1New", TaskStatus.IN_PROGRESS, 1, Duration.ofMinutes(5), now);
+        Subtask st2New = new Subtask(3, "t2New", "d2New", TaskStatus.NEW, 1, Duration.ofMinutes(5), now.plusMinutes(6));
+        taskManager.updateSubtask(st1New);
+        taskManager.updateSubtask(st2New);
+
+        assertEquals(List.of(st1New, st2New), taskManager.getPrioritizedTasks());
     }
 }
