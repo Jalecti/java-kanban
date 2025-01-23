@@ -52,11 +52,11 @@ class FileBackedTaskManagerTest {
         fileBackedTaskManager.addSubtask(subtask2);
 
         String tasksString = String.format("%s%n%s%n%s%n%s%n%s%n",
-                "id,type,name,status,description,epicId",
-                "1,TASK,Task1,NEW,Description task1,",
-                "2,EPIC,Epic1,DONE,Description epic1,",
-                "3,SUBTASK,Sub Task1,DONE,Description sub task1,2",
-                "4,SUBTASK,Sub Task2,DONE,Description sub task2,2");
+                "id,type,name,status,description,epicId,duration,startTime",
+                "1,TASK,Task1,NEW,Description task1,," + task1.getDuration() + "," + task1.getStartTime(),
+                "2,EPIC,Epic1,DONE,Description epic1,," + epic1.getDuration() + "," + epic1.getStartTime(),
+                "3,SUBTASK,Sub Task1,DONE,Description sub task1,2," + subtask1.getDuration() + "," + subtask1.getStartTime(),
+                "4,SUBTASK,Sub Task2,DONE,Description sub task2,2," + subtask2.getDuration() + "," + subtask2.getStartTime());
         fileString = Files.readString(tempFile.toPath(), StandardCharsets.UTF_8);
         assertEquals(tasksString, fileString);
     }
@@ -65,7 +65,7 @@ class FileBackedTaskManagerTest {
     public void shouldBeEmptyManagerWhenLoadFromEmptyFile() throws IOException {
         String fileString = Files.readString(tempFile.toPath(), StandardCharsets.UTF_8);
         assertTrue(fileString.isEmpty());
-        fileBackedTaskManager = FileBackedTaskManager.loadFromFile(tempFile);
+        assertDoesNotThrow(() -> fileBackedTaskManager = FileBackedTaskManager.loadFromFile(tempFile));
         assertTrue(fileBackedTaskManager.getTaskList().isEmpty());
         assertTrue(fileBackedTaskManager.getEpicList().isEmpty());
         assertTrue(fileBackedTaskManager.getSubtaskList().isEmpty());
@@ -78,11 +78,11 @@ class FileBackedTaskManagerTest {
         Subtask subtask1 = new Subtask(3, "Sub Task1", "Description sub task1", TaskStatus.DONE, 2);
         Subtask subtask2 = new Subtask(4, "Sub Task2", "Description sub task2", TaskStatus.DONE, 2);
         String tasksString = String.format("%s%n%s%n%s%n%s%n%s%n",
-                "id,type,name,status,description,epicId",
-                "1,TASK,Task1,NEW,Description task1,",
-                "2,EPIC,Epic1,DONE,Description epic1,",
-                "3,SUBTASK,Sub Task1,DONE,Description sub task1,2",
-                "4,SUBTASK,Sub Task2,DONE,Description sub task2,2");
+                "id,type,name,status,description,epicId,duration,startTime",
+                "1,TASK,Task1,NEW,Description task1,," + task1.getDuration() + "," + task1.getStartTime(),
+                "2,EPIC,Epic1,DONE,Description epic1,," + epic1.getDuration() + "," + epic1.getStartTime(),
+                "3,SUBTASK,Sub Task1,DONE,Description sub task1,2," + subtask1.getDuration() + "," + subtask1.getStartTime(),
+                "4,SUBTASK,Sub Task2,DONE,Description sub task2,2," + subtask2.getDuration() + "," + subtask2.getStartTime());
         try (FileWriter fileWriter = new FileWriter(tempFile, StandardCharsets.UTF_8);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             bufferedWriter.write(tasksString);
@@ -90,7 +90,7 @@ class FileBackedTaskManagerTest {
         String fileString = Files.readString(tempFile.toPath(), StandardCharsets.UTF_8);
         assertEquals(tasksString, fileString);
 
-        fileBackedTaskManager = FileBackedTaskManager.loadFromFile(tempFile);
+        assertDoesNotThrow(() -> fileBackedTaskManager = FileBackedTaskManager.loadFromFile(tempFile));
         assertEquals(new ArrayList<>(List.of(task1)), fileBackedTaskManager.getTaskList());
         assertEquals(new ArrayList<>(List.of(epic1)), fileBackedTaskManager.getEpicList());
         assertEquals(new ArrayList<>(List.of(subtask1, subtask2)), fileBackedTaskManager.getSubtaskList());

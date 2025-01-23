@@ -7,11 +7,19 @@ import model.TaskStatus;
 import service.TaskManager;
 import utils.Managers;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Main {
 
     static int printHistoryCount = 0;
 
     public static void main(String[] args) {
+        firstScenario();
+        //secondScenario();
+    }
+
+    static void firstScenario() {
         TaskManager manager = Managers.getDefault();
         //1: Создайте две задачи, эпик с тремя подзадачами и эпик без подзадач.
         //id = 1
@@ -62,38 +70,54 @@ public class Main {
         //5: Удалите эпик с тремя подзадачами и убедитесь, что из истории удалился как сам эпик, так и все его подзадачи.
         manager.deleteEpic(3);
         printHistory(manager); //История 4
+    }
 
+    static void secondScenario() {
+        //Второй сценарий
+        LocalDateTime now = LocalDateTime.now();
+        TaskManager manager = Managers.getDefault();
+
+        Task task1 = new Task(1, "t1", "d1", TaskStatus.NEW, Duration.ofMinutes(5), now.plusMinutes(40));
+        Task task2 = new Task(2, "t2", "d2", TaskStatus.NEW, Duration.ofMinutes(5), now.plusMinutes(30));
+        manager.addTask(task1);
+        manager.addTask(task2);
+        Epic epic1 = new Epic("e1", "d3");
+        manager.addEpic(epic1);
+        Subtask subtask1 = new Subtask(4, "st1", "d1", TaskStatus.NEW, 3, Duration.ofMinutes(7), now.plusMinutes(20));
+        manager.addSubtask(subtask1);
+        //id = 5
+        Subtask subtask2 = new Subtask(5, "st2", "d2", TaskStatus.IN_PROGRESS, 3, Duration.ofMinutes(5), now.plusMinutes(10));
+        manager.addSubtask(subtask2);
+        //id = 6
+        Subtask subtask3 = new Subtask(6, "st3", "d3", TaskStatus.DONE, 3, Duration.ofMinutes(5), now);
+        manager.addSubtask(subtask3);
+        printAllTasks(manager);
+
+        System.out.println("Приоритетный порядок задач:");
+        manager.getPrioritizedTasks().stream().forEach(System.out::println);
+        System.out.println("Длительность эпика:");
+        System.out.println(manager.getEpic(3).getDuration());
     }
 
     static void printHistory(TaskManager manager) {
         System.out.printf("История %s:\n", ++printHistoryCount);
-        for (Task task : manager.getHistory()) {
-            System.out.println(task);
-        }
+        manager.getHistory().stream().forEach(System.out::println);
     }
 
     static void printAllTasks(TaskManager manager) {
         System.out.println("Задачи:");
-        for (Task task : manager.getTaskList()) {
-            System.out.println(task);
-        }
+        manager.getTaskList().stream().forEach(System.out::println);
         System.out.println("Эпики:");
-        for (Task epic : manager.getEpicList()) {
-            System.out.println(epic);
 
-            for (Task task : manager.getSubtaskListOfEpic(epic.getId())) {
-                System.out.println("--> " + task);
-            }
-        }
+        manager.getEpicList().stream().forEach(epic -> {
+            System.out.println(epic);
+            manager.getSubtaskListOfEpic(epic.getId()).stream().forEach(task -> System.out.println("--> " + task));
+        });
         System.out.println("Подзадачи:");
-        for (Task subtask : manager.getSubtaskList()) {
-            System.out.println(subtask);
-        }
+        manager.getSubtaskList().stream().forEach(System.out::println);
 
         System.out.println("История:");
-        for (Task task : manager.getHistory()) {
-            System.out.println(task);
-        }
+        manager.getHistory().stream().forEach(System.out::println);
     }
 
     static void printTitle(String str) {

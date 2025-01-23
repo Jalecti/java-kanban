@@ -1,8 +1,8 @@
-id,type,name,status,description,epicId
-1,TASK,Task1,NEW,Description task1,
-2,EPIC,Epic1,DONE,Description epic1,
-3,SUBTASK,Sub Task1,DONE,Description sub task1,2
-4,SUBTASK,Sub Task2,DONE,Description sub task2,2
-5,TASK,UNIQname0,IN_PROGRESS,UNIQdescr0,
-6,TASK,UNIQname1,IN_PROGRESS,UNIQdescr1,
-7,TASK,UNIQname2,IN_PROGRESS,UNIQdescr2,
+id,type,name,status,description,epicId,duration,startTime
+1,TASK,Task1,NEW,Description task1,,PT5M,2025-01-22T23:17:06.499500
+2,EPIC,Epic1,DONE,Description epic1,,PT10M,2025-01-22T23:27:06.499500
+3,SUBTASK,Sub Task1,DONE,Description sub task1,2,PT5M,2025-01-22T23:27:06.499500
+4,SUBTASK,Sub Task2,DONE,Description sub task2,2,PT5M,2025-01-22T23:37:06.499500
+5,TASK,UNIQname0,IN_PROGRESS,UNIQdescr0,,PT5M,2025-01-22T23:47:06.499500
+6,TASK,UNIQname1,IN_PROGRESS,UNIQdescr1,,PT5M,2025-01-22T23:57:06.499500
+7,TASK,UNIQname2,IN_PROGRESS,UNIQdescr2,,PT5M,2025-01-23T00:07:06.499500
