@@ -1,9 +1,6 @@
 package main;
 
-import model.Task;
-import model.Subtask;
-import model.Epic;
-import model.TaskStatus;
+import model.*;
 import service.TaskManager;
 import utils.Managers;
 
