@@ -23,6 +23,10 @@ public class Task {
         this.startTime = startTime;
     }
 
+    public Task(String name, String description, TaskStatus status, Duration duration, LocalDateTime startTime) {
+        this(-1, name, description, status, duration, startTime);
+    }
+
     public Task(int id, String name, String description, TaskStatus status) {
         this(id, name, description, status, null, null);
     }

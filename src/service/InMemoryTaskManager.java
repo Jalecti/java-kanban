@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.TaskNotFoundException;
 import exceptions.TaskTimeOverlapException;
 import model.Task;
 import model.Subtask;
@@ -54,8 +55,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.getSubtaskIdList().stream().forEach(subtaskId -> subtaskListOfEpic.add(subtaskMap.get(subtaskId)));
             return subtaskListOfEpic;
         } else {
-            System.out.println("Указанный эпик не найден");
-            return null;
+            throw new TaskNotFoundException("Указанный эпик не найден");
         }
     }
 
@@ -101,8 +101,7 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.addToHistory(targetTask);
             return targetTask;
         } else {
-            System.out.println("Указанная задача не найдена");
-            return null;
+            throw new TaskNotFoundException("Указанная задача не найдена");
         }
     }
 
@@ -113,8 +112,7 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.addToHistory(targetSubtask);
             return targetSubtask;
         } else {
-            System.out.println("Указанная подзадача не найдена");
-            return null;
+            throw new TaskNotFoundException("Указанная подзадача не найдена");
         }
     }
 
@@ -125,8 +123,7 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.addToHistory(targetEpic);
             return targetEpic;
         } else {
-            System.out.println("Указанный эпик не найден");
-            return null;
+            throw new TaskNotFoundException("Указанный эпик не найден");
         }
     }
 
@@ -161,7 +158,7 @@ public class InMemoryTaskManager implements TaskManager {
                         + subtask.getName() + " пересекается с задачами внутри менеджера");
             }
         } else {
-            System.out.println("Указанный эпик не найден");
+            throw new TaskNotFoundException("Указанный эпик не найден");
         }
     }
 
@@ -183,7 +180,7 @@ public class InMemoryTaskManager implements TaskManager {
                         + newTask.getName() + " пересекается с задачами внутри менеджера");
             }
         } else {
-            System.out.println("Задание, помеченное для обновления, не найдено");
+            throw new TaskNotFoundException("Задача, помеченная для обновления, не найдена");
         }
     }
 
@@ -200,6 +197,8 @@ public class InMemoryTaskManager implements TaskManager {
                 throw new TaskTimeOverlapException("Временной отрезок задачи "
                         + newSubtask.getName() + " пересекается с задачами внутри менеджера");
             }
+        } else {
+            throw new TaskNotFoundException("Подзадача, помеченная для обновления, не найдена");
         }
     }
 
@@ -210,7 +209,7 @@ public class InMemoryTaskManager implements TaskManager {
             epicToUpdate.setName(epic.getName());
             epicToUpdate.setDescription(epic.getDescription());
         } else {
-            System.out.println("Эпик, помеченный для обновления, не найден");
+            throw new TaskNotFoundException("Эпик, помеченный для обновления, не найден");
         }
     }
 
@@ -221,7 +220,7 @@ public class InMemoryTaskManager implements TaskManager {
             taskMap.remove(id);
             historyManager.remove(id);
         } else {
-            System.out.println("Задача, помеченная для удаления, не найдена");
+            throw new TaskNotFoundException("Задача, помеченная для удаления, не найдена");
         }
     }
 
@@ -235,7 +234,7 @@ public class InMemoryTaskManager implements TaskManager {
             subtaskMap.remove(id);
             historyManager.remove(id);
         } else {
-            System.out.println("Подзадача, помеченная для удаления, не найдена");
+            throw new TaskNotFoundException("Подзадача, помеченная для удаления, не найдена");
         }
     }
 
@@ -250,7 +249,7 @@ public class InMemoryTaskManager implements TaskManager {
             epicMap.remove(id);
             historyManager.remove(id);
         } else {
-            System.out.println("Эпик, помеченный для удаления, не найден");
+            throw new TaskNotFoundException("Эпик, помеченный для удаления, не найден");
         }
     }
 
@@ -315,7 +314,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isOverlapInTime(Task t1, Task t2) {
-        return !t1.getEndTime().isBefore(t2.getStartTime()) && !t1.getStartTime().isAfter(t2.getEndTime());
+        return (!t1.getEndTime().isBefore(t2.getStartTime()) && !t1.getStartTime().isAfter(t2.getEndTime()))
+                || (t1.getEndTime().equals(t2.getEndTime()) && t1.getStartTime().equals(t2.getStartTime()));
     }
 
     private boolean isValidInTime(Task task) {
@@ -347,7 +347,7 @@ public class InMemoryTaskManager implements TaskManager {
                 epicMap.get(subtask.getEpicId()).addSubtaskId(subtask.getId());
                 updateEpicData(subtask.getEpicId());
             } else {
-                System.out.println("Указанный эпик не найден");
+                throw new TaskNotFoundException("Указанный эпик не найден");
             }
         } else {
             taskMap.put(task.getId(), task);
