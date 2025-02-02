@@ -35,7 +35,7 @@ public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
                     break;
                 case POST_SUBTASK_CREATE:
                     taskManager.addSubtask(subtask);
-                    sendText(exchange, "Подзадача " + subtask.getName() + " успешно добавлена", 201);
+                    sendText(exchange, "Подзадача " + subtask.getName() + " успешно добавлена под идентификатором id=" + subtask.getId(), 201);
                     break;
                 case POST_SUBTASK_UPDATE:
                     taskManager.updateSubtask(subtask);

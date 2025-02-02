@@ -35,7 +35,7 @@ public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
                     break;
                 case POST_EPIC_CREATE:
                     taskManager.addEpic(epic);
-                    sendText(exchange, "Эпик " + epic.getName() + " успешно добавлен", 201);
+                    sendText(exchange, "Эпик " + epic.getName() + " успешно добавлен под идентификатором id=" + epic.getId(), 201);
                     break;
                 case POST_EPIC_UPDATE:
                     taskManager.updateEpic(epic);

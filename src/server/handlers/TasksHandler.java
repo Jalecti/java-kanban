@@ -34,7 +34,7 @@ public class TasksHandler extends BaseHttpHandler implements HttpHandler {
                     break;
                 case POST_TASK_CREATE:
                     taskManager.addTask(task);
-                    sendText(exchange, "Задача " + task.getName() + " успешно добавлена", 201);
+                    sendText(exchange, "Задача " + task.getName() + " успешно добавлена под идентификатором id=" + task.getId(), 201);
                     break;
                 case POST_TASK_UPDATE:
                     taskManager.updateTask(task);

@@ -37,10 +37,12 @@ public class HttpTaskServer {
 
     public void start() {
         httpServer.start();
+        System.out.println("HttpTaskServer запущен на " + PORT + " порту!");
     }
 
     public void stop() {
         httpServer.stop(0);
+        System.out.println("HttpTaskServer остановлен");
     }
 
     public static Gson getGson() {
@@ -50,6 +52,5 @@ public class HttpTaskServer {
     public static void main(String[] args) throws IOException {
         HttpTaskServer httpTaskServer = new HttpTaskServer(FileBackedTaskManager.loadFromFile(new File("saves\\serverSave.csv")));
         httpTaskServer.start();
-        System.out.println("HttpTaskServer запущен на " + PORT + " порту!");
     }
 }
